@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rubikssolver/ai.dart';
 import 'package:rubikssolver/definitions.dart';
 import 'package:rubikssolver/logic.dart';
 
@@ -27,8 +28,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  RubiksCube cube = RubiksCube(3);
-  List<MaterialColor> colors = [];
+  RubiksCube cube = RubiksCube(2);
+  List<Color> colors = [
+    Colors.black,
+    Colors.amber,
+    Colors.red,
+    Colors.purple,
+    Colors.lime,
+    Colors.cyan,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +44,23 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child: SizedBox(
           width: 1080 * RelSize(context).pixel,
+          height: 810 * RelSize(context).pixel,
           child: Stack(
             children: [
+              GestureDetector(
+                onTap: () {
+                  List<AIMove> kekw = AI(cube, 12 ~/ cube.size).dfs();
+                  for (AIMove move in kekw) {
+                    cube.rotate(move.rotationList, move.index, move.reversed);
+                  }
+                  setState(() {});
+                },
+                child: Text(cube.cubeScore().toString()),
+              ),
               CubeFace(
                 top: 270 * RelSize(context).pixel,
                 left: 0 * RelSize(context).pixel,
-                dim: 90 * RelSize(context).pixel,
+                dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
                   setState(() {});
@@ -59,7 +78,7 @@ class _HomePageState extends State<HomePage> {
               CubeFace(
                 top: 270 * RelSize(context).pixel,
                 left: 270 * RelSize(context).pixel,
-                dim: 90 * RelSize(context).pixel,
+                dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
                   setState(() {});
@@ -77,7 +96,7 @@ class _HomePageState extends State<HomePage> {
               CubeFace(
                 top: 0 * RelSize(context).pixel,
                 left: 540 * RelSize(context).pixel,
-                dim: 90 * RelSize(context).pixel,
+                dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
                   setState(() {});
@@ -96,7 +115,7 @@ class _HomePageState extends State<HomePage> {
               CubeFace(
                 top: 270 * RelSize(context).pixel,
                 left: 540 * RelSize(context).pixel,
-                dim: 90 * RelSize(context).pixel,
+                dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
                   setState(() {});
@@ -115,7 +134,7 @@ class _HomePageState extends State<HomePage> {
               CubeFace(
                 top: 540 * RelSize(context).pixel,
                 left: 540 * RelSize(context).pixel,
-                dim: 90 * RelSize(context).pixel,
+                dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
                   setState(() {});
@@ -135,7 +154,7 @@ class _HomePageState extends State<HomePage> {
               CubeFace(
                 top: 270 * RelSize(context).pixel,
                 left: 810 * RelSize(context).pixel,
-                dim: 90 * RelSize(context).pixel,
+                dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
                   setState(() {});
@@ -225,8 +244,8 @@ class _CubeFaceState extends State<CubeFace> {
                   height: widget.dim,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.white,
-                      width: widget.dim / 10,
+                      color: Colors.grey.shade600,
+                      width: widget.dim / 20,
                     ),
                     color:
                         widget.colors[widget.cube[widget.side]![i][j].hashCode],

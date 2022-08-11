@@ -29,6 +29,18 @@ class PossibleRotations {
     RotData(Side.bottom, Direction.right),
     RotData(Side.back, Direction.left),
   ];
+  static List<RotData> fromIndex(int index) {
+    switch (index) {
+      case 0:
+        return line;
+      case 1:
+        return circle;
+      case 2:
+        return triangle;
+      default:
+    }
+    return [];
+  }
 }
 
 class RubiksCube {
@@ -118,5 +130,23 @@ class RubiksCube {
       i++;
       setLine(sideData, rotationIndex, lines[i % 4]);
     }
+  }
+
+  int cubeScore() {
+    int cubeScore = 0;
+    for (int i = 0; i < 6; i++) {
+      List<int> sideScore = [0, 0, 0, 0, 0, 0];
+      for (int j = 0; j < size; j++) {
+        for (int k = 0; k < size; k++) {
+          sideScore[cube[Side(i)]![j][k].hashCode]++;
+        }
+      }
+      int most = 0;
+      for (int i = 0; i < 6; i++) {
+        if (most < sideScore[i]) most = sideScore[i];
+      }
+      cubeScore += most;
+    }
+    return cubeScore;
   }
 }
