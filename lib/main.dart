@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rubikssolver/ai.dart';
+import 'package:rubikssolver/algo.dart';
 import 'package:rubikssolver/definitions.dart';
 import 'package:rubikssolver/logic.dart';
 
@@ -28,14 +28,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  RubiksCube cube = RubiksCube(2);
+  RubiksCube cube = RubiksCube(3);
   List<Color> colors = [
-    Colors.black,
-    Colors.amber,
+    Colors.green,
+    Colors.white,
+    Colors.orange,
+    Colors.blue,
+    Colors.yellow,
     Colors.red,
-    Colors.purple,
-    Colors.lime,
-    Colors.cyan,
   ];
 
   @override
@@ -47,37 +47,35 @@ class _HomePageState extends State<HomePage> {
           height: 810 * RelSize(context).pixel,
           child: Stack(
             children: [
-              GestureDetector(
-                onTap: () {
-                  List<AIMove> kekw = AI(cube, 12 ~/ cube.size).dfs();
-                  for (AIMove move in kekw) {
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: List.generate(
+                  12,
+                  (index) => GestureDetector(
+                    onTap: () {
+                      cube.rotateFrom3x3Notation(
+                          PossibleRotations.instructionNames[index]);
+                      setState(() {});
+                    },
+                    child:
+                        Text("${PossibleRotations.instructionNames[index]} "),
+                  ),
+                ),
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  List<Move> kekw = Algorithm(cube.carbonCopy).moves;
+                  for (Move move in kekw) {
                     cube.rotate(move.rotationList, move.index, move.reversed);
                   }
                   setState(() {});
+                  RubiksCube newCube = cube.carbonCopy;
+                  cube = newCube;
                 },
-                child: Text(cube.cubeScore().toString()),
               ),
               CubeFace(
                 top: 270 * RelSize(context).pixel,
                 left: 0 * RelSize(context).pixel,
-                dim: 270 * RelSize(context).pixel / cube.size,
-                size: cube.size,
-                update: () {
-                  setState(() {});
-                },
-                rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.line, index, direction);
-                },
-                rotateY: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.triangle, index, !direction);
-                },
-                cube: cube.cube,
-                side: Side.back,
-                colors: colors,
-              ),
-              CubeFace(
-                top: 270 * RelSize(context).pixel,
-                left: 270 * RelSize(context).pixel,
                 dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
@@ -95,7 +93,7 @@ class _HomePageState extends State<HomePage> {
               ),
               CubeFace(
                 top: 0 * RelSize(context).pixel,
-                left: 540 * RelSize(context).pixel,
+                left: 270 * RelSize(context).pixel,
                 dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
@@ -114,7 +112,7 @@ class _HomePageState extends State<HomePage> {
               ),
               CubeFace(
                 top: 270 * RelSize(context).pixel,
-                left: 540 * RelSize(context).pixel,
+                left: 270 * RelSize(context).pixel,
                 dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
@@ -133,7 +131,7 @@ class _HomePageState extends State<HomePage> {
               ),
               CubeFace(
                 top: 540 * RelSize(context).pixel,
-                left: 540 * RelSize(context).pixel,
+                left: 270 * RelSize(context).pixel,
                 dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
@@ -141,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                 },
                 rotateX: (int index, bool direction) {
                   cube.rotate(PossibleRotations.circle, cube.size - 1 - index,
-                      direction);
+                      !direction);
                 },
                 rotateY: (int index, bool direction) {
                   cube.rotate(PossibleRotations.triangle, cube.size - 1 - index,
@@ -153,7 +151,7 @@ class _HomePageState extends State<HomePage> {
               ),
               CubeFace(
                 top: 270 * RelSize(context).pixel,
-                left: 810 * RelSize(context).pixel,
+                left: 540 * RelSize(context).pixel,
                 dim: 270 * RelSize(context).pixel / cube.size,
                 size: cube.size,
                 update: () {
@@ -168,6 +166,24 @@ class _HomePageState extends State<HomePage> {
                 },
                 cube: cube.cube,
                 side: Side.right,
+                colors: colors,
+              ),
+              CubeFace(
+                top: 270 * RelSize(context).pixel,
+                left: 810 * RelSize(context).pixel,
+                dim: 270 * RelSize(context).pixel / cube.size,
+                size: cube.size,
+                update: () {
+                  setState(() {});
+                },
+                rotateX: (int index, bool direction) {
+                  cube.rotate(PossibleRotations.line, index, direction);
+                },
+                rotateY: (int index, bool direction) {
+                  cube.rotate(PossibleRotations.triangle, index, !direction);
+                },
+                cube: cube.cube,
+                side: Side.back,
                 colors: colors,
               ),
             ],
