@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:rubikssolver/algo.dart';
 import 'package:rubikssolver/definitions.dart';
@@ -28,7 +30,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  RubiksCube cube = RubiksCube(3);
+  RubiksCube cube = RubiksCube(2);
   List<Color> colors = [
     Colors.green,
     Colors.white,
@@ -72,6 +74,18 @@ class _HomePageState extends State<HomePage> {
                   RubiksCube newCube = cube.carbonCopy;
                   cube = newCube;
                 },
+              ),
+              Positioned(
+                bottom: 0,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    for (int i = 0; i < 100; i++) {
+                      cube.rotate(PossibleRotations.toList[Random().nextInt(3)],
+                          Random().nextInt(cube.size), Random().nextBool());
+                    }
+                    setState(() {});
+                  },
+                ),
               ),
               CubeFace(
                 top: 270 * RelSize(context).pixel,
@@ -215,7 +229,7 @@ class CubeFace extends StatefulWidget {
   final Function update;
   final Function(int index, bool direction) rotateX;
   final Function(int index, bool direction) rotateY;
-  final Map<Side, List<List<Side>>> cube;
+  final Map<Side, List<List<PieceData>>> cube;
   final Side side;
   final List<Color> colors;
 
@@ -263,8 +277,8 @@ class _CubeFaceState extends State<CubeFace> {
                       color: Colors.grey.shade600,
                       width: widget.dim / 20,
                     ),
-                    color:
-                        widget.colors[widget.cube[widget.side]![i][j].hashCode],
+                    color: widget
+                        .colors[widget.cube[widget.side]![i][j].side.hashCode],
                   ),
                 ),
               ),

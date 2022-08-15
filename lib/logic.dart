@@ -53,47 +53,60 @@ class PossibleRotations {
 
 class RubiksCube {
   final int size;
-  Map<Side, List<List<Side>>> cube = {};
+  Map<Side, List<List<PieceData>>> cube = {};
+  Map<Side, List<List<PieceData>>> piecePositions = {};
 
   RubiksCube get carbonCopy {
     RubiksCube newCube = RubiksCube(size);
-    newCube.cube = {
-      Side.front: List.generate(
-          size, (i) => List.generate(size, (j) => cube[Side.front]![i][j])),
-      Side.top: List.generate(
-          size, (i) => List.generate(size, (j) => cube[Side.top]![i][j])),
-      Side.left: List.generate(
-          size, (i) => List.generate(size, (j) => cube[Side.left]![i][j])),
-      Side.back: List.generate(
-          size, (i) => List.generate(size, (j) => cube[Side.back]![i][j])),
-      Side.bottom: List.generate(
-          size, (i) => List.generate(size, (j) => cube[Side.bottom]![i][j])),
-      Side.right: List.generate(
-          size, (i) => List.generate(size, (j) => cube[Side.right]![i][j])),
-    };
+    newCube.cube = Map.fromIterables(
+        List.generate(6, (index) => Side(index)),
+        List.generate(
+            6,
+            (index) => List.generate(
+                size,
+                (i) => List.generate(
+                      size,
+                      (j) => cube[Side(index)]![i][j],
+                    ))));
+    newCube.piecePositions = Map.fromIterables(
+        List.generate(6, (index) => Side(index)),
+        List.generate(
+            6,
+            (index) => List.generate(
+                size,
+                (i) => List.generate(
+                      size,
+                      (j) => piecePositions[Side(index)]![i][j],
+                    ))));
     return newCube;
   }
 
   RubiksCube(
     this.size,
   ) {
-    cube = {
-      Side.front:
-          List.generate(size, (_) => List.generate(size, (_) => Side.front)),
-      Side.top:
-          List.generate(size, (_) => List.generate(size, (_) => Side.top)),
-      Side.left:
-          List.generate(size, (_) => List.generate(size, (_) => Side.left)),
-      Side.back:
-          List.generate(size, (_) => List.generate(size, (_) => Side.back)),
-      Side.bottom:
-          List.generate(size, (_) => List.generate(size, (_) => Side.bottom)),
-      Side.right:
-          List.generate(size, (_) => List.generate(size, (_) => Side.right)),
-    };
+    cube = Map.fromIterables(
+        List.generate(6, (index) => Side(index)),
+        List.generate(
+            6,
+            (index) => List.generate(
+                size,
+                (i) => List.generate(
+                      size,
+                      (j) => PieceData(Side(index), i, j),
+                    ))));
+    piecePositions = Map.fromIterables(
+        List.generate(6, (index) => Side(index)),
+        List.generate(
+            6,
+            (index) => List.generate(
+                size,
+                (i) => List.generate(
+                      size,
+                      (j) => PieceData(Side(index), i, j),
+                    ))));
   }
-  List<Side> getLine(RotData data, int index) {
-    List<Side> line = [];
+  List<PieceData> getLine(RotData data, int index) {
+    List<PieceData> line = [];
     switch (data.startingDirection.hashCode) {
       case 0:
         for (int i = 0; i < size; i++) {
@@ -120,26 +133,34 @@ class RubiksCube {
     return line;
   }
 
-  void _setLine(RotData data, int index, List<Side> line) {
+  void _setLine(RotData data, int index, List<PieceData> line) {
     switch (data.startingDirection.hashCode) {
       case 0:
         for (int i = 0; i < size; i++) {
           cube[data.side]![index][i] = line[i];
+          piecePositions[line[i].side]![line[i].y][line[i].x] =
+              PieceData(data.side, index, i);
         }
         break;
       case 1:
         for (int i = 0; i < size; i++) {
           cube[data.side]![i][size - 1 - index] = line[i];
+          piecePositions[line[i].side]![line[i].y][line[i].x] =
+              PieceData(data.side, i, size - 1 - index);
         }
         break;
       case 2:
         for (int i = 0; i < size; i++) {
           cube[data.side]![size - 1 - index][size - 1 - i] = line[i];
+          piecePositions[line[i].side]![line[i].y][line[i].x] =
+              PieceData(data.side, size - 1 - index, size - 1 - i);
         }
         break;
       case 3:
         for (int i = 0; i < size; i++) {
           cube[data.side]![size - 1 - i][index] = line[i];
+          piecePositions[line[i].side]![line[i].y][line[i].x] =
+              PieceData(data.side, size - 1 - i, index);
         }
         break;
       default:
@@ -147,8 +168,8 @@ class RubiksCube {
   }
 
   void _rotateSide(Side side, bool reversed) {
-    List<List<Side>> faceCopy =
-        List.generate(size, (_) => List.generate(size, (_) => Side(0)));
+    List<List<PieceData>> faceCopy = List.generate(
+        size, (_) => List.generate(size, (_) => PieceData(side, 0, 0)));
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < size; j++) {
         faceCopy[i][j] = cube[side]![i][j];
@@ -158,12 +179,18 @@ class RubiksCube {
       for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
           cube[side]![i][j] = faceCopy[size - 1 - j][i];
+          piecePositions[faceCopy[size - 1 - j][i].side]![
+                  faceCopy[size - 1 - j][i].y][faceCopy[size - 1 - j][i].x] =
+              PieceData(side, i, j);
         }
       }
     } else {
       for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
           cube[side]![i][j] = faceCopy[j][size - 1 - i];
+          piecePositions[faceCopy[j][size - 1 - i].side]![
+                  faceCopy[j][size - 1 - i].y][faceCopy[j][size - 1 - i].x] =
+              PieceData(side, i, j);
         }
       }
     }
@@ -171,7 +198,7 @@ class RubiksCube {
 
   void rotate(List<RotData> rotation, int rotationIndex, bool reversed) {
     //get the lines
-    List<List<Side>> lines = [];
+    List<List<PieceData>> lines = [];
     for (RotData sideData in reversed ? rotation.reversed : rotation) {
       lines.add(getLine(sideData, rotationIndex));
     }

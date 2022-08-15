@@ -37,7 +37,7 @@ class Direction {
 class Side {
   final int val;
 
-  Side(this.val);
+  const Side(this.val);
 
   @override
   int get hashCode => val;
@@ -46,12 +46,36 @@ class Side {
   bool operator ==(Object other) =>
       other is Side && other.runtimeType == Side && other.val == val;
 
-  static final Side front = Side(0);
-  static final Side top = Side(1);
-  static final Side left = Side(2);
-  static final Side back = Side(3);
-  static final Side bottom = Side(4);
-  static final Side right = Side(5);
+  String get toInstruction => (const ["F", "U", "L", "B", "D", "R"])[val];
+  @override
+  String toString() {
+    return const ["front", "top", "left", "back", "bottom", "right"][val];
+  }
+
+  static const Side front = Side(0);
+  static const Side top = Side(1);
+  static const Side left = Side(2);
+  static const Side back = Side(3);
+  static const Side bottom = Side(4);
+  static const Side right = Side(5);
+}
+
+class PieceData {
+  final Side side;
+  final int x, y;
+  PieceData(this.side, this.y, this.x);
+
+  @override
+  String toString() {
+    return "${const [
+      "front",
+      "top",
+      "left",
+      "back",
+      "bottom",
+      "right"
+    ][side.hashCode]},x:$x,y:$y";
+  }
 }
 
 class RotData {
