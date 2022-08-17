@@ -105,7 +105,7 @@ class RubiksCube {
                       (j) => PieceData(Side(index), i, j),
                     ))));
   }
-  List<PieceData> getLine(RotData data, int index) {
+  List<PieceData> getLinePieces(RotData data, int index) {
     List<PieceData> line = [];
     switch (data.startingDirection.hashCode) {
       case 0:
@@ -200,7 +200,7 @@ class RubiksCube {
     //get the lines
     List<List<PieceData>> lines = [];
     for (RotData sideData in reversed ? rotation.reversed : rotation) {
-      lines.add(getLine(sideData, rotationIndex));
+      lines.add(getLinePieces(sideData, rotationIndex));
     }
     int i = 0;
     for (RotData sideData in reversed ? rotation.reversed : rotation) {
