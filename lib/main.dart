@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:rubikssolver/algo.dart';
 import 'package:rubikssolver/definitions.dart';
@@ -30,7 +31,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  RubiksCube cube = RubiksCube(2);
+  RubiksCube cube = RubiksCube(7);
   List<Color> colors = [
     Colors.green,
     Colors.white,
@@ -253,6 +254,12 @@ class _CubeFaceState extends State<CubeFace> {
             children: List.generate(
               widget.size,
               (j) => GestureDetector(
+                onTap: kDebugMode
+                    ? () {
+                        // ignore: avoid_print
+                        print(widget.cube[widget.side]![i][j]);
+                      }
+                    : null,
                 onPanStart: (details) {
                   initMousePos = details.globalPosition;
                   currentMousePos = initMousePos;

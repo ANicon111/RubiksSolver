@@ -19,7 +19,7 @@ class RelSize {
 class Direction {
   final int val;
 
-  Direction(this.val);
+  const Direction(this.val);
 
   @override
   int get hashCode => val;
@@ -28,10 +28,10 @@ class Direction {
   bool operator ==(Object other) =>
       other is Direction && other.runtimeType == Direction && other.val == val;
 
-  static final Direction top = Direction(0);
-  static final Direction right = Direction(1);
-  static final Direction bottom = Direction(2);
-  static final Direction left = Direction(3);
+  static const Direction top = Direction(0);
+  static const Direction right = Direction(1);
+  static const Direction bottom = Direction(2);
+  static const Direction left = Direction(3);
 }
 
 class Side {
@@ -82,5 +82,5 @@ class RotData {
   final Side side;
   final Direction startingDirection;
 
-  RotData(this.side, this.startingDirection);
+  const RotData(this.side, this.startingDirection);
 }

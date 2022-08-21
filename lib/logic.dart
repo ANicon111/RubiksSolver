@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:rubikssolver/algo.dart';
 import 'package:rubikssolver/definitions.dart';
 
 class PossibleRotations {
@@ -5,7 +7,7 @@ class PossibleRotations {
   //     ■
   //-■-■-■-■-
   //     ■
-  static final List<RotData> line = [
+  static const List<RotData> line = [
     RotData(Side.front, Direction.top),
     RotData(Side.right, Direction.top),
     RotData(Side.back, Direction.top),
@@ -14,7 +16,7 @@ class PossibleRotations {
   //   /-■-\
   // ■ ■ ■ ■
   //   \-■-/
-  static final List<RotData> circle = [
+  static const List<RotData> circle = [
     RotData(Side.top, Direction.top),
     RotData(Side.right, Direction.right),
     RotData(Side.bottom, Direction.bottom),
@@ -23,13 +25,13 @@ class PossibleRotations {
   //  /--■
   // ■ ■ ■ ■
   //  \--■
-  static final List<RotData> triangle = [
+  static const List<RotData> triangle = [
     RotData(Side.top, Direction.right),
     RotData(Side.front, Direction.right),
     RotData(Side.bottom, Direction.right),
     RotData(Side.back, Direction.left),
   ];
-  static final List<List<RotData>> toList = [
+  static const List<List<RotData>> toList = [
     line,
     circle,
     triangle,
@@ -197,6 +199,9 @@ class RubiksCube {
   }
 
   void rotate(List<RotData> rotation, int rotationIndex, bool reversed) {
+    if (kDebugMode) {
+      print(Move(rotation, rotationIndex, reversed));
+    }
     //get the lines
     List<List<PieceData>> lines = [];
     for (RotData sideData in reversed ? rotation.reversed : rotation) {

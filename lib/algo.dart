@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:rubikssolver/definitions.dart';
 import 'package:rubikssolver/logic.dart';
 
@@ -8,6 +7,24 @@ class Move {
   final bool reversed;
 
   Move(this.rotationList, this.index, this.reversed);
+
+  @override
+  String toString() {
+    String rotname = "";
+    switch (rotationList) {
+      case PossibleRotations.line:
+        rotname = "line";
+        break;
+      case PossibleRotations.circle:
+        rotname = "circle";
+        break;
+      case PossibleRotations.triangle:
+        rotname = "triangle";
+        break;
+      default:
+    }
+    return "$rotname,$index,$reversed";
+  }
 
   static Move fromInstruction(String instruction, int size) {
     switch (instruction) {
@@ -46,17 +63,257 @@ class Algorithm {
   RubiksCube cube;
   int step = 0;
   void rotate3x3ByNotation(String instructions) {
-    if (kDebugMode) {
-      print(instructions);
-    }
     cube.rotateFrom3x3Notation(instructions);
     instructions.split(" ").forEach((element) {
       moves.add(Move.fromInstruction(element, cube.size));
     });
   }
 
+  void genericRotation(Move move) {
+    cube.rotate(move.rotationList, move.index, move.reversed);
+    moves.add(move);
+  }
+
   //steps:
   //0-100 simplify to 3x3;
+  //0 NxN top center
+  void topCenterNxN() {
+    //move pieces to the top
+    int debug = 0;
+    for (int i = 1; i < cube.size - 1; i++) {
+      for (int j = 1; j < cube.size - 1; j++) {
+        while (cube.piecePositions[Side.top]![i][j].side != Side.top ||
+            cube.piecePositions[Side.top]![i][j].x != j ||
+            cube.piecePositions[Side.top]![i][j].y != i) {
+          PieceData pos = cube.piecePositions[Side.top]![i][j];
+          if (debug < bugDetectionLimit * cube.size * cube.size) {
+            debug++;
+          } else {
+            break;
+          }
+          //top algorithm
+          if (pos.side == Side.top) {
+            genericRotation(
+                Move(PossibleRotations.triangle, cube.size - 1 - pos.x, true));
+            genericRotation(Move(PossibleRotations.line, pos.y, true));
+            genericRotation(
+                Move(PossibleRotations.triangle, cube.size - 1 - pos.x, false));
+          }
+          //bottom algorithm
+          else if (pos.side == Side.bottom) {
+            genericRotation(
+                Move(PossibleRotations.triangle, cube.size - 1 - pos.x, false));
+            if (pos.x == pos.y &&
+                pos.x == cube.size ~/ 2 &&
+                cube.size % 2 == 1) {
+              genericRotation(
+                  Move(PossibleRotations.line, cube.size ~/ 2, false));
+            } else {
+              genericRotation(
+                  Move(PossibleRotations.circle, cube.size - 1, false));
+            }
+            genericRotation(
+                Move(PossibleRotations.triangle, cube.size - 1 - pos.x, true));
+          }
+          //generic side algorithm
+          else if (pos.side != Side.left) {
+            genericRotation(Move(PossibleRotations.line, pos.y, true));
+          }
+          //left algorithm
+          else {
+            if (cube.piecePositions[Side.top]![i][j].x != j ||
+                cube.piecePositions[Side.top]![i][j].y != i) {
+              genericRotation(
+                  Move(PossibleRotations.triangle, cube.size - 1, false));
+            } else {
+              genericRotation(Move(
+                  PossibleRotations.triangle, cube.size - 1 - pos.x, true));
+              genericRotation(Move(PossibleRotations.line, pos.y, true));
+              genericRotation(Move(
+                  PossibleRotations.triangle, cube.size - 1 - pos.x, false));
+            }
+          }
+        }
+      }
+    }
+    //go to next step
+    step = 1;
+  }
+
+  //1 NxN bottom center
+  void bottomCenterNxN() {
+    //move pieces to the bottom
+    int debug = 0;
+    for (int i = 1; i < cube.size - 1; i++) {
+      for (int j = 1; j < cube.size - 1; j++) {
+        while (cube.piecePositions[Side.bottom]![i][j].side != Side.bottom ||
+            cube.piecePositions[Side.bottom]![i][j].x != j ||
+            cube.piecePositions[Side.bottom]![i][j].y != i) {
+          PieceData pos = cube.piecePositions[Side.bottom]![i][j];
+          if (debug < bugDetectionLimit * cube.size * cube.size) {
+            debug++;
+          } else {
+            break;
+          }
+          //bottom algorithm
+          if (pos.side == Side.bottom) {
+            genericRotation(
+                Move(PossibleRotations.triangle, cube.size - 1 - pos.x, false));
+            genericRotation(Move(PossibleRotations.circle, 0,
+                ((pos.x >= cube.size ~/ 2) ^ (pos.y >= cube.size ~/ 2))));
+            genericRotation(Move(PossibleRotations.line, pos.y, true));
+            genericRotation(Move(PossibleRotations.circle, 0,
+                !((pos.x >= cube.size ~/ 2) ^ (pos.y >= cube.size ~/ 2))));
+            genericRotation(
+                Move(PossibleRotations.triangle, cube.size - 1 - pos.x, true));
+          }
+          //generic side algorithm
+          else if (pos.side != Side.left) {
+            genericRotation(Move(PossibleRotations.line, pos.y, true));
+          }
+          //left algorithm
+          else {
+            if (pos.x != j || pos.y != i) {
+              genericRotation(
+                  Move(PossibleRotations.triangle, cube.size - 1, false));
+            } else {
+              genericRotation(Move(
+                  PossibleRotations.triangle, cube.size - 1 - pos.x, false));
+              genericRotation(Move(PossibleRotations.circle, 0,
+                  ((pos.x >= cube.size ~/ 2) ^ (pos.y >= cube.size ~/ 2))));
+              genericRotation(Move(PossibleRotations.line, pos.y, true));
+              genericRotation(Move(PossibleRotations.circle, 0,
+                  !((pos.x >= cube.size ~/ 2) ^ (pos.y >= cube.size ~/ 2))));
+              genericRotation(Move(
+                  PossibleRotations.triangle, cube.size - 1 - pos.x, true));
+            }
+          }
+        }
+      }
+    }
+    //go to next step
+    step = 2;
+  }
+
+  //2 NxN left center
+  void leftCenterNxN() {
+    //move left pieces
+    int debug = 0;
+    for (int index = 0; index < 2; index++) {
+      for (int i = 1; i < cube.size - 1; i++) {
+        for (int j = 1; j < cube.size - 1; j++) {
+          while (cube.piecePositions[Side.left]![i][j].side != Side.left ||
+              cube.piecePositions[Side.left]![i][j].x != j ||
+              cube.piecePositions[Side.left]![i][j].y != i) {
+            PieceData pos = cube.piecePositions[Side.left]![i][j];
+            if (debug < bugDetectionLimit * cube.size * cube.size) {
+              debug++;
+            } else {
+              break;
+            }
+            if ((pos.y != j || pos.x != cube.size - 1 - i) &&
+                pos.side != Side.left) {
+              rotate3x3ByNotation(pos.side.toInstruction);
+            } else if (pos.side == Side.left) {
+              genericRotation(Move(PossibleRotations.line, pos.y, false));
+              genericRotation(Move(PossibleRotations.line, pos.y, false));
+            } else {
+              List<Move> rememberedMoves = [];
+              if (pos.side == Side.front && pos.y != i) {
+                genericRotation(Move(PossibleRotations.line, pos.y, false));
+                rememberedMoves.add(Move(PossibleRotations.line, pos.y, true));
+              }
+              genericRotation(Move(PossibleRotations.line, i, true));
+              genericRotation(
+                  Move(PossibleRotations.circle, cube.size - 1, true));
+              while (cube.piecePositions[Side.left]![i][j].side != Side.front) {
+                genericRotation(Move(PossibleRotations.line, pos.y, false));
+                rememberedMoves.add(Move(PossibleRotations.line, pos.y, true));
+              }
+              if (cube.piecePositions[Side.left]![i][j].side == Side.front &&
+                  (cube.piecePositions[Side.left]![i][j].y != j ||
+                      cube.piecePositions[Side.left]![i][j].x !=
+                          cube.size - 1 - i)) {
+                genericRotation(Move(PossibleRotations.line,
+                    cube.piecePositions[Side.left]![i][j].y, true));
+                rememberedMoves.add(Move(PossibleRotations.line,
+                    cube.piecePositions[Side.left]![i][j].y, false));
+              }
+              genericRotation(
+                  Move(PossibleRotations.circle, cube.size - 1, false));
+              genericRotation(Move(PossibleRotations.line, i, false));
+              while (rememberedMoves.isNotEmpty) {
+                genericRotation(rememberedMoves.removeLast());
+              }
+              while (cube.piecePositions[Side.left]![i][j].side != Side.left) {
+                genericRotation(Move(PossibleRotations.line, pos.y, false));
+              }
+            }
+          }
+        }
+      }
+    }
+    //go to next step
+    step = 3;
+  }
+
+  //3 NxN front center
+  void frontCenterNxN() {
+    //move front pieces
+    int debug = 0;
+    for (int index = 0; index < 2; index++) {
+      for (int i = 1; i < cube.size - 1; i++) {
+        for (int j = 1; j < cube.size - 1; j++) {
+          while (cube.piecePositions[Side.front]![i][j].side != Side.front ||
+              cube.piecePositions[Side.front]![i][j].x != j ||
+              cube.piecePositions[Side.front]![i][j].y != i) {
+            PieceData pos = cube.piecePositions[Side.front]![i][j];
+            if (debug < bugDetectionLimit * cube.size * cube.size) {
+              debug++;
+            } else {
+              break;
+            }
+            if ((pos.y != j || pos.x != cube.size - 1 - i) &&
+                pos.side != Side.front) {
+              rotate3x3ByNotation(pos.side.toInstruction);
+            } else if (pos.side == Side.front) {
+              //TODO
+            } else {
+              List<Move> rememberedMoves = [];
+              genericRotation(Move(PossibleRotations.line, i, true));
+              genericRotation(Move(PossibleRotations.triangle, 0, false));
+              //TODO
+              genericRotation(Move(PossibleRotations.triangle, 0, true));
+              genericRotation(Move(PossibleRotations.line, i, false));
+              while (rememberedMoves.isNotEmpty) {
+                genericRotation(rememberedMoves.removeLast());
+              }
+            }
+          }
+        }
+      }
+    }
+    //go to next step
+    step = 4;
+  }
+
+  //4 NxN side centers
+  void rightCenterNxN() {
+    //go to next step
+    step = 5;
+  }
+
+  //5 NxN top sides
+  void topSidesNxN() {
+    //go to next step
+    step = 6;
+  }
+
+  //6 NxN bottom sides
+  void bottomSidesNxN() {
+    //go to next step
+    step = -1;
+  }
 
   //100-200 solve 3x3
   //100 3x3 top plus
@@ -658,7 +915,6 @@ class Algorithm {
   List<Move> moves = [];
 
   Algorithm(this.cube) {
-    step = 100;
     switch (cube.size) {
       case 1:
         step = -1;
@@ -672,6 +928,13 @@ class Algorithm {
       default:
     }
     final Map<int, void Function()> functions = {
+      0: topCenterNxN,
+      1: bottomCenterNxN,
+      2: leftCenterNxN,
+      3: frontCenterNxN,
+      4: rightCenterNxN,
+      5: topSidesNxN,
+      6: bottomSidesNxN,
       100: topCross3x3,
       101: topCorners3x3,
       102: sideMiddleEdges3x3,
