@@ -68,6 +68,9 @@ class _HomePageState extends State<HomePage> {
               FloatingActionButton(
                 onPressed: () {
                   List<Move> kekw = Algorithm(cube.carbonCopy).moves;
+                  if (kDebugMode) {
+                    print("Number of operations:${kekw.length}");
+                  }
                   for (Move move in kekw) {
                     cube.rotate(move.rotationList, move.index, move.reversed);
                   }
@@ -97,10 +100,11 @@ class _HomePageState extends State<HomePage> {
                   setState(() {});
                 },
                 rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.line, index, direction);
+                  cube.rotate(PossibleRotations.line, index, direction, true);
                 },
                 rotateY: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.circle, index, !direction);
+                  cube.rotate(
+                      PossibleRotations.circle, index, !direction, true);
                 },
                 cube: cube.cube,
                 side: Side.left,
@@ -115,11 +119,11 @@ class _HomePageState extends State<HomePage> {
                   setState(() {});
                 },
                 rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.circle, index, direction);
+                  cube.rotate(PossibleRotations.circle, index, direction, true);
                 },
                 rotateY: (int index, bool direction) {
                   cube.rotate(PossibleRotations.triangle, cube.size - 1 - index,
-                      direction);
+                      direction, true);
                 },
                 cube: cube.cube,
                 side: Side.top,
@@ -134,11 +138,11 @@ class _HomePageState extends State<HomePage> {
                   setState(() {});
                 },
                 rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.line, index, direction);
+                  cube.rotate(PossibleRotations.line, index, direction, true);
                 },
                 rotateY: (int index, bool direction) {
                   cube.rotate(PossibleRotations.triangle, cube.size - 1 - index,
-                      direction);
+                      direction, true);
                 },
                 cube: cube.cube,
                 side: Side.front,
@@ -154,11 +158,11 @@ class _HomePageState extends State<HomePage> {
                 },
                 rotateX: (int index, bool direction) {
                   cube.rotate(PossibleRotations.circle, cube.size - 1 - index,
-                      !direction);
+                      !direction, true);
                 },
                 rotateY: (int index, bool direction) {
                   cube.rotate(PossibleRotations.triangle, cube.size - 1 - index,
-                      direction);
+                      direction, true);
                 },
                 cube: cube.cube,
                 side: Side.bottom,
@@ -173,11 +177,11 @@ class _HomePageState extends State<HomePage> {
                   setState(() {});
                 },
                 rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.line, index, direction);
+                  cube.rotate(PossibleRotations.line, index, direction, true);
                 },
                 rotateY: (int index, bool direction) {
                   cube.rotate(PossibleRotations.circle, cube.size - 1 - index,
-                      direction);
+                      direction, true);
                 },
                 cube: cube.cube,
                 side: Side.right,
@@ -192,10 +196,11 @@ class _HomePageState extends State<HomePage> {
                   setState(() {});
                 },
                 rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.line, index, direction);
+                  cube.rotate(PossibleRotations.line, index, direction, true);
                 },
                 rotateY: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.triangle, index, !direction);
+                  cube.rotate(
+                      PossibleRotations.triangle, index, !direction, true);
                 },
                 cube: cube.cube,
                 side: Side.back,

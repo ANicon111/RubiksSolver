@@ -198,9 +198,12 @@ class RubiksCube {
     }
   }
 
-  void rotate(List<RotData> rotation, int rotationIndex, bool reversed) {
-    if (kDebugMode) {
-      print(Move(rotation, rotationIndex, reversed));
+  void rotate(List<RotData> rotation, int rotationIndex, bool reversed,
+      [bool printMoves = false]) {
+    if (printMoves) {
+      if (kDebugMode) {
+        print(Move(rotation, rotationIndex, reversed));
+      }
     }
     //get the lines
     List<List<PieceData>> lines = [];
