@@ -76,6 +76,15 @@ class PieceData {
       "right"
     ][side.hashCode]},x:$x,y:$y";
   }
+
+  @override
+  int get hashCode => side.hashCode + 6 * x + 60000 * y;
+
+  @override
+  bool operator ==(Object other) =>
+      other is PieceData &&
+      other.runtimeType == PieceData &&
+      other.hashCode == hashCode;
 }
 
 class RotData {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -31,7 +32,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  RubiksCube cube = RubiksCube(7);
+  TextEditingController controller = TextEditingController();
+  RubiksCube cube = RubiksCube(4);
+  Timer? movePlayer;
   List<Color> colors = [
     Colors.green,
     Colors.white,
@@ -42,6 +45,12 @@ class _HomePageState extends State<HomePage> {
   ];
 
   @override
+  void dispose() {
+    movePlayer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -50,45 +59,52 @@ class _HomePageState extends State<HomePage> {
           height: 810 * RelSize(context).pixel,
           child: Stack(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: List.generate(
-                  12,
-                  (index) => GestureDetector(
-                    onTap: () {
-                      cube.rotateFrom3x3Notation(
-                          PossibleRotations.instructionNames[index]);
-                      setState(() {});
-                    },
-                    child:
-                        Text("${PossibleRotations.instructionNames[index]} "),
-                  ),
-                ),
-              ),
               FloatingActionButton(
                 onPressed: () {
-                  List<Move> kekw = Algorithm(cube.carbonCopy).moves;
-                  if (kDebugMode) {
-                    print("Number of operations:${kekw.length}");
+                  if (movePlayer != null) {
+                    movePlayer?.cancel();
+                    movePlayer = null;
+                    setState(() {});
+                  } else {
+                    List<Move> algorithmMoves =
+                        Algorithm(cube.carbonCopy).moves;
+                    if (kDebugMode) {
+                      print("Number of operations:${algorithmMoves.length}");
+                    }
+                    int i = 0;
+                    void doMove() {
+                      if (i == algorithmMoves.length) {
+                        movePlayer!.cancel();
+                        movePlayer = null;
+                        setState(() {});
+                        return;
+                      }
+                      Move move = algorithmMoves[i++];
+                      cube.rotate(
+                          move.rotationList, move.index, move.isReversed);
+                      setState(() {});
+                    }
+
+                    movePlayer =
+                        Timer.periodic(const Duration(milliseconds: 100), (_) {
+                      doMove();
+                    });
                   }
-                  for (Move move in kekw) {
-                    cube.rotate(move.rotationList, move.index, move.reversed);
-                  }
-                  setState(() {});
-                  RubiksCube newCube = cube.carbonCopy;
-                  cube = newCube;
                 },
+                child:
+                    Icon(movePlayer != null ? Icons.cancel : Icons.play_arrow),
               ),
               Positioned(
-                bottom: 0,
+                right: 0,
                 child: FloatingActionButton(
                   onPressed: () {
-                    for (int i = 0; i < 100; i++) {
+                    for (int i = 0; i < 1000; i++) {
                       cube.rotate(PossibleRotations.toList[Random().nextInt(3)],
                           Random().nextInt(cube.size), Random().nextBool());
                     }
                     setState(() {});
                   },
+                  child: const Icon(Icons.shuffle),
                 ),
               ),
               CubeFace(

@@ -242,43 +242,49 @@ class RubiksCube {
 
   void rotateFrom3x3Notation(String instructions) {
     List<String> instructionList = instructions.split(" ");
-    for (String instruction in instructionList) {
+    for (String value in instructionList) {
+      String instruction = value[value.length - 1];
+      if (value[value.length - 1] == "'") {
+        instruction = value.substring(value.length - 2);
+      }
+      value = value.split(instruction)[0];
+      int index = int.tryParse(value) ?? 0;
       switch (instruction) {
         case "F":
-          rotate(PossibleRotations.circle, size - 1, true);
+          rotate(PossibleRotations.circle, size - 1 - index, true);
           break;
         case "R":
-          rotate(PossibleRotations.triangle, 0, false);
+          rotate(PossibleRotations.triangle, 0 + index, false);
           break;
         case "U":
-          rotate(PossibleRotations.line, 0, false);
+          rotate(PossibleRotations.line, 0 + index, false);
           break;
         case "B":
-          rotate(PossibleRotations.circle, 0, false);
+          rotate(PossibleRotations.circle, 0 + index, false);
           break;
         case "L":
-          rotate(PossibleRotations.triangle, size - 1, true);
+          rotate(PossibleRotations.triangle, size - 1 - index, true);
           break;
         case "D":
-          rotate(PossibleRotations.line, size - 1, true);
+          rotate(PossibleRotations.line, size - 1 - index, true);
           break;
         case "F'":
-          rotate(PossibleRotations.circle, size - 1, false);
+          rotate(PossibleRotations.circle, size - 1 - index, false);
           break;
         case "R'":
-          rotate(PossibleRotations.triangle, 0, true);
+          rotate(PossibleRotations.triangle, 0 + index, true);
           break;
         case "U'":
-          rotate(PossibleRotations.line, 0, true);
+          rotate(PossibleRotations.line, 0 + index, true);
           break;
         case "B'":
-          rotate(PossibleRotations.circle, 0, true);
+          rotate(PossibleRotations.circle, 0 + index, true);
           break;
         case "L'":
-          rotate(PossibleRotations.triangle, size - 1, false);
+          rotate(PossibleRotations.triangle, size - 1 - index, false);
           break;
         case "D'":
-          rotate(PossibleRotations.line, size - 1, false);
+          rotate(PossibleRotations.line, size - 1 - index, false);
           break;
         default:
       }
