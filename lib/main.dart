@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
                     FloatingActionButton(
                       onPressed: () {
                         int val = int.tryParse(sizeGetter.text) ?? 3;
-                        sizeGetter.text = "3";
+                        sizeGetter.text = val.toString();
                         cube = RubiksCube(val);
                         setState(() {});
                       },
