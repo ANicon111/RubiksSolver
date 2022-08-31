@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rubikssolver/algo.dart';
 import 'package:rubikssolver/definitions.dart';
 import 'package:rubikssolver/logic.dart';
@@ -32,9 +33,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  TextEditingController controller = TextEditingController();
-  RubiksCube cube = RubiksCube(4);
+  RubiksCube cube = RubiksCube(3);
   Timer? movePlayer;
+  TextEditingController sizeGetter = TextEditingController(text: "3");
   List<Color> colors = [
     Colors.green,
     Colors.white,
@@ -93,6 +94,36 @@ class _HomePageState extends State<HomePage> {
                 },
                 child:
                     Icon(movePlayer != null ? Icons.cancel : Icons.play_arrow),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: TextFormField(
+                        decoration:
+                            const InputDecoration(label: Text("Dimension")),
+                        controller: sizeGetter,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        maxLength: 2,
+                      ),
+                    ),
+                    FloatingActionButton(
+                      onPressed: () {
+                        int val = int.tryParse(sizeGetter.text) ?? 3;
+                        sizeGetter.text = "3";
+                        cube = RubiksCube(val);
+                        setState(() {});
+                      },
+                      child: const Icon(Icons.check),
+                    ),
+                  ],
+                ),
               ),
               Positioned(
                 right: 0,
