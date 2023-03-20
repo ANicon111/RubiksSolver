@@ -240,7 +240,7 @@ class RubiksCube {
     }
   }
 
-  void rotateFrom3x3Notation(String instructions) {
+  void rotateFromNxNNotation(String instructions) {
     List<String> instructionList = instructions.split(" ");
     for (String value in instructionList) {
       String instruction = value[value.length - 1];

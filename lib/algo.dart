@@ -77,7 +77,7 @@ class Algorithm {
     if (kDebugMode) {
       print(instructions);
     }
-    cube.rotateFrom3x3Notation(instructions);
+    cube.rotateFromNxNNotation(instructions);
     instructions.split(" ").forEach((element) {
       moves.add(Move.fromInstruction(element, cube.size));
     });
