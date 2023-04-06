@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                                   fontSize: RelSize(context).pixel * 32,
                                 ),
                                 label: const Text(
-                                  "Dimension",
+                                  "Dimensiune",
                                 ),
                                 counterText: "",
                               ),
