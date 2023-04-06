@@ -35,6 +35,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   RubiksCube cube = RubiksCube(3);
   Timer? movePlayer;
+  bool gameStarted = false;
   TextEditingController sizeGetter = TextEditingController(text: "3");
   List<Color> colors = [
     Colors.green,
@@ -55,206 +56,310 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: SizedBox(
-          width: 1080 * RelSize(context).pixel,
-          height: 810 * RelSize(context).pixel,
-          child: Stack(
-            children: [
-              FloatingActionButton(
-                onPressed: () {
-                  if (movePlayer != null) {
-                    movePlayer?.cancel();
-                    movePlayer = null;
-                    setState(() {});
-                  } else {
-                    List<Move> algorithmMoves =
-                        Algorithm(cube.carbonCopy).moves;
-                    if (kDebugMode) {
-                      print("Number of operations:${algorithmMoves.length}");
-                    }
-                    int i = 0;
-                    void doMove() {
-                      if (i == algorithmMoves.length) {
-                        movePlayer!.cancel();
-                        movePlayer = null;
-                        setState(() {});
-                        return;
-                      }
-                      Move move = algorithmMoves[i++];
-                      cube.rotate(
-                          move.rotationList, move.index, move.isReversed);
-                      setState(() {});
-                    }
-
-                    movePlayer =
-                        Timer.periodic(const Duration(milliseconds: 100), (_) {
-                      doMove();
-                    });
-                  }
-                },
-                child:
-                    Icon(movePlayer != null ? Icons.cancel : Icons.play_arrow),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Row(
+        child: Stack(
+          children: [
+            Center(
+              child: SizedBox(
+                width: 1080 * RelSize(context).pixel,
+                height: 810 * RelSize(context).pixel,
+                child: Stack(
                   children: [
-                    SizedBox(
-                      width: 100,
-                      child: TextFormField(
-                        decoration:
-                            const InputDecoration(label: Text("Dimension")),
-                        controller: sizeGetter,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        maxLength: 2,
+                    MaterialButton(
+                      onPressed: () {
+                        if (movePlayer != null) {
+                          movePlayer?.cancel();
+                          movePlayer = null;
+                          setState(() {});
+                        } else {
+                          List<Move> algorithmMoves =
+                              Algorithm(cube.carbonCopy).moves;
+                          if (kDebugMode) {
+                            print(
+                                "Number of operations:${algorithmMoves.length}");
+                          }
+                          int i = 0;
+                          void doMove() {
+                            if (i == algorithmMoves.length) {
+                              movePlayer!.cancel();
+                              movePlayer = null;
+                              setState(() {});
+                              return;
+                            }
+                            Move move = algorithmMoves[i++];
+                            cube.rotate(
+                                move.rotationList, move.index, move.isReversed);
+                            setState(() {});
+                          }
+
+                          movePlayer = Timer.periodic(
+                              const Duration(milliseconds: 100), (_) {
+                            doMove();
+                          });
+                        }
+                      },
+                      color: Theme.of(context).colorScheme.secondary,
+                      hoverColor: Theme.of(context).colorScheme.primary,
+                      height: RelSize(context).pixel * 96,
+                      shape: const CircleBorder(side: BorderSide.none),
+                      child: Icon(
+                        movePlayer != null ? Icons.cancel : Icons.play_circle,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        size: RelSize(context).pixel * 48,
                       ),
                     ),
-                    FloatingActionButton(
-                      onPressed: () {
-                        int val = int.tryParse(sizeGetter.text) ?? 3;
-                        sizeGetter.text = val.toString();
-                        cube = RubiksCube(val);
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: RelSize(context).pixel * 120,
+                            child: TextFormField(
+                              style: TextStyle(
+                                  fontSize: RelSize(context).pixel * 32),
+                              decoration: InputDecoration(
+                                labelStyle: TextStyle(
+                                  fontSize: RelSize(context).pixel * 32,
+                                ),
+                                label: const Text(
+                                  "Dimension",
+                                ),
+                                counterText: "",
+                              ),
+                              controller: sizeGetter,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                FilteringTextInputFormatter.singleLineFormatter
+                              ],
+                              maxLength: 2,
+                            ),
+                          ),
+                          MaterialButton(
+                            onPressed: () {
+                              int val = int.tryParse(sizeGetter.text) ?? 3;
+                              if (val < 2) {
+                                val = 2;
+                              }
+                              sizeGetter.text = val.toString();
+                              cube = RubiksCube(val);
+                              setState(() {});
+                            },
+                            color: Theme.of(context).colorScheme.secondary,
+                            hoverColor: Theme.of(context).colorScheme.primary,
+                            height: RelSize(context).pixel * 96,
+                            shape: const CircleBorder(side: BorderSide.none),
+                            child: Icon(
+                              Icons.check,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              size: RelSize(context).pixel * 48,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      child: MaterialButton(
+                        onPressed: () {
+                          for (int i = 0; i < 1000; i++) {
+                            cube.rotate(
+                                PossibleRotations.toList[Random().nextInt(3)],
+                                Random().nextInt(cube.size),
+                                Random().nextBool());
+                          }
+                          setState(() {});
+                        },
+                        color: Theme.of(context).colorScheme.secondary,
+                        hoverColor: Theme.of(context).colorScheme.primary,
+                        height: RelSize(context).pixel * 96,
+                        shape: const CircleBorder(side: BorderSide.none),
+                        child: Icon(
+                          Icons.shuffle,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          size: RelSize(context).pixel * 48,
+                        ),
+                      ),
+                    ),
+                    CubeFace(
+                      top: 270 * RelSize(context).pixel,
+                      left: 0 * RelSize(context).pixel,
+                      dim: 270 * RelSize(context).pixel / cube.size,
+                      size: cube.size,
+                      update: () {
                         setState(() {});
                       },
-                      child: const Icon(Icons.check),
+                      rotateX: (int index, bool direction) {
+                        cube.rotate(
+                            PossibleRotations.line, index, direction, true);
+                      },
+                      rotateY: (int index, bool direction) {
+                        cube.rotate(
+                            PossibleRotations.circle, index, !direction, true);
+                      },
+                      cube: cube.cube,
+                      side: Side.left,
+                      colors: colors,
+                    ),
+                    CubeFace(
+                      top: 0 * RelSize(context).pixel,
+                      left: 270 * RelSize(context).pixel,
+                      dim: 270 * RelSize(context).pixel / cube.size,
+                      size: cube.size,
+                      update: () {
+                        setState(() {});
+                      },
+                      rotateX: (int index, bool direction) {
+                        cube.rotate(
+                            PossibleRotations.circle, index, direction, true);
+                      },
+                      rotateY: (int index, bool direction) {
+                        cube.rotate(PossibleRotations.triangle,
+                            cube.size - 1 - index, direction, true);
+                      },
+                      cube: cube.cube,
+                      side: Side.top,
+                      colors: colors,
+                    ),
+                    CubeFace(
+                      top: 270 * RelSize(context).pixel,
+                      left: 270 * RelSize(context).pixel,
+                      dim: 270 * RelSize(context).pixel / cube.size,
+                      size: cube.size,
+                      update: () {
+                        setState(() {});
+                      },
+                      rotateX: (int index, bool direction) {
+                        cube.rotate(
+                            PossibleRotations.line, index, direction, true);
+                      },
+                      rotateY: (int index, bool direction) {
+                        cube.rotate(PossibleRotations.triangle,
+                            cube.size - 1 - index, direction, true);
+                      },
+                      cube: cube.cube,
+                      side: Side.front,
+                      colors: colors,
+                    ),
+                    CubeFace(
+                      top: 540 * RelSize(context).pixel,
+                      left: 270 * RelSize(context).pixel,
+                      dim: 270 * RelSize(context).pixel / cube.size,
+                      size: cube.size,
+                      update: () {
+                        setState(() {});
+                      },
+                      rotateX: (int index, bool direction) {
+                        cube.rotate(PossibleRotations.circle,
+                            cube.size - 1 - index, !direction, true);
+                      },
+                      rotateY: (int index, bool direction) {
+                        cube.rotate(PossibleRotations.triangle,
+                            cube.size - 1 - index, direction, true);
+                      },
+                      cube: cube.cube,
+                      side: Side.bottom,
+                      colors: colors,
+                    ),
+                    CubeFace(
+                      top: 270 * RelSize(context).pixel,
+                      left: 540 * RelSize(context).pixel,
+                      dim: 270 * RelSize(context).pixel / cube.size,
+                      size: cube.size,
+                      update: () {
+                        setState(() {});
+                      },
+                      rotateX: (int index, bool direction) {
+                        cube.rotate(
+                            PossibleRotations.line, index, direction, true);
+                      },
+                      rotateY: (int index, bool direction) {
+                        cube.rotate(PossibleRotations.circle,
+                            cube.size - 1 - index, direction, true);
+                      },
+                      cube: cube.cube,
+                      side: Side.right,
+                      colors: colors,
+                    ),
+                    CubeFace(
+                      top: 270 * RelSize(context).pixel,
+                      left: 810 * RelSize(context).pixel,
+                      dim: 270 * RelSize(context).pixel / cube.size,
+                      size: cube.size,
+                      update: () {
+                        setState(() {});
+                      },
+                      rotateX: (int index, bool direction) {
+                        cube.rotate(
+                            PossibleRotations.line, index, direction, true);
+                      },
+                      rotateY: (int index, bool direction) {
+                        cube.rotate(PossibleRotations.triangle, index,
+                            !direction, true);
+                      },
+                      cube: cube.cube,
+                      side: Side.back,
+                      colors: colors,
                     ),
                   ],
                 ),
               ),
-              Positioned(
-                right: 0,
-                child: FloatingActionButton(
-                  onPressed: () {
-                    for (int i = 0; i < 1000; i++) {
-                      cube.rotate(PossibleRotations.toList[Random().nextInt(3)],
-                          Random().nextInt(cube.size), Random().nextBool());
-                    }
-                    setState(() {});
-                  },
-                  child: const Icon(Icons.shuffle),
-                ),
-              ),
-              CubeFace(
-                top: 270 * RelSize(context).pixel,
-                left: 0 * RelSize(context).pixel,
-                dim: 270 * RelSize(context).pixel / cube.size,
-                size: cube.size,
-                update: () {
-                  setState(() {});
-                },
-                rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.line, index, direction, true);
-                },
-                rotateY: (int index, bool direction) {
-                  cube.rotate(
-                      PossibleRotations.circle, index, !direction, true);
-                },
-                cube: cube.cube,
-                side: Side.left,
-                colors: colors,
-              ),
-              CubeFace(
-                top: 0 * RelSize(context).pixel,
-                left: 270 * RelSize(context).pixel,
-                dim: 270 * RelSize(context).pixel / cube.size,
-                size: cube.size,
-                update: () {
-                  setState(() {});
-                },
-                rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.circle, index, direction, true);
-                },
-                rotateY: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.triangle, cube.size - 1 - index,
-                      direction, true);
-                },
-                cube: cube.cube,
-                side: Side.top,
-                colors: colors,
-              ),
-              CubeFace(
-                top: 270 * RelSize(context).pixel,
-                left: 270 * RelSize(context).pixel,
-                dim: 270 * RelSize(context).pixel / cube.size,
-                size: cube.size,
-                update: () {
-                  setState(() {});
-                },
-                rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.line, index, direction, true);
-                },
-                rotateY: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.triangle, cube.size - 1 - index,
-                      direction, true);
-                },
-                cube: cube.cube,
-                side: Side.front,
-                colors: colors,
-              ),
-              CubeFace(
-                top: 540 * RelSize(context).pixel,
-                left: 270 * RelSize(context).pixel,
-                dim: 270 * RelSize(context).pixel / cube.size,
-                size: cube.size,
-                update: () {
-                  setState(() {});
-                },
-                rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.circle, cube.size - 1 - index,
-                      !direction, true);
-                },
-                rotateY: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.triangle, cube.size - 1 - index,
-                      direction, true);
-                },
-                cube: cube.cube,
-                side: Side.bottom,
-                colors: colors,
-              ),
-              CubeFace(
-                top: 270 * RelSize(context).pixel,
-                left: 540 * RelSize(context).pixel,
-                dim: 270 * RelSize(context).pixel / cube.size,
-                size: cube.size,
-                update: () {
-                  setState(() {});
-                },
-                rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.line, index, direction, true);
-                },
-                rotateY: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.circle, cube.size - 1 - index,
-                      direction, true);
-                },
-                cube: cube.cube,
-                side: Side.right,
-                colors: colors,
-              ),
-              CubeFace(
-                top: 270 * RelSize(context).pixel,
-                left: 810 * RelSize(context).pixel,
-                dim: 270 * RelSize(context).pixel / cube.size,
-                size: cube.size,
-                update: () {
-                  setState(() {});
-                },
-                rotateX: (int index, bool direction) {
-                  cube.rotate(PossibleRotations.line, index, direction, true);
-                },
-                rotateY: (int index, bool direction) {
-                  cube.rotate(
-                      PossibleRotations.triangle, index, !direction, true);
-                },
-                cube: cube.cube,
-                side: Side.back,
-                colors: colors,
-              ),
-            ],
-          ),
+            ),
+            gameStarted
+                ? Container()
+                : Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(200, 0, 0, 0),
+                        borderRadius: BorderRadius.circular(
+                          RelSize(context).pixel * 20,
+                        ),
+                      ),
+                      width: max(
+                          MediaQuery.of(context).size.width -
+                              RelSize(context).vmin * 20,
+                          MediaQuery.of(context).size.shortestSide),
+                      height: MediaQuery.of(context).size.height -
+                          RelSize(context).vmin * 20,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(
+                            "Rubik's Solver",
+                            style: TextStyle(
+                                fontSize: RelSize(context).pixel * 64),
+                          ),
+                          Tooltip(
+                            message:
+                                "Această aplicație simulează un cub magic,\nun joc de dexteritate care se bazează\npe rotirea la 90 de grade a liniilor unui cub\ncu fețe segmentate NxN",
+                            textAlign: TextAlign.center,
+                            child: Icon(
+                              Icons.info_outline,
+                              size: RelSize(context).pixel * 64,
+                            ),
+                          ),
+                          Container(),
+                          MaterialButton(
+                            onPressed: () {
+                              gameStarted = true;
+                              setState(() {});
+                            },
+                            color: Theme.of(context).colorScheme.secondary,
+                            hoverColor: Theme.of(context).colorScheme.primary,
+                            height: RelSize(context).pixel * 96,
+                            shape: const CircleBorder(side: BorderSide.none),
+                            child: Icon(
+                              Icons.play_arrow,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              size: RelSize(context).pixel * 48,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          ],
         ),
       ),
     );
