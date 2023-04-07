@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         children: [
                           SizedBox(
-                            width: RelSize(context).pixel * 120,
+                            width: RelSize(context).pixel * 160,
                             child: TextFormField(
                               style: TextStyle(
                                   fontSize: RelSize(context).pixel * 32),
@@ -121,8 +121,12 @@ class _HomePageState extends State<HomePage> {
                                 labelStyle: TextStyle(
                                   fontSize: RelSize(context).pixel * 32,
                                 ),
-                                label: const Text(
-                                  "Dimensiune",
+                                label: Text(
+                                  Localizations.localeOf(context)
+                                              .languageCode ==
+                                          "ro-RO"
+                                      ? "Dimensiune"
+                                      : "Dimension",
                                 ),
                                 counterText: "",
                               ),
@@ -331,8 +335,11 @@ class _HomePageState extends State<HomePage> {
                                 fontSize: RelSize(context).pixel * 64),
                           ),
                           Tooltip(
-                            message:
-                                "Această aplicație simulează un cub magic,\nun joc de dexteritate care se bazează\npe rotirea la 90 de grade a liniilor unui cub\ncu fețe segmentate NxN",
+                            message: Localizations.localeOf(context)
+                                        .languageCode ==
+                                    "ro-RO"
+                                ? "Această aplicație simulează un cub magic,\nun joc de dexteritate care se bazează\npe rotirea la 90 de grade a liniilor unui cub\ncu fețe segmentate NxN."
+                                : "This app simulates a magic cube,\n a dexterity game that's based\n on 90 degree turns of the cube's lines.",
                             textAlign: TextAlign.center,
                             child: Icon(
                               Icons.info_outline,
