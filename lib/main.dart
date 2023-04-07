@@ -336,8 +336,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Tooltip(
                             message: Localizations.localeOf(context)
-                                        .languageCode ==
-                                    "ro-RO"
+                                    .languageCode
+                                    .contains("ro")
                                 ? "Această aplicație simulează un cub magic,\nun joc de dexteritate care se bazează\npe rotirea la 90 de grade a liniilor unui cub\ncu fețe segmentate NxN."
                                 : "This app simulates a magic cube,\n a dexterity game that's based\n on 90 degree turns of the cube's lines.",
                             textAlign: TextAlign.center,
