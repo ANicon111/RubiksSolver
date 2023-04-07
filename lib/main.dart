@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rubikssolver/algo.dart';
 import 'package:rubikssolver/definitions.dart';
 import 'package:rubikssolver/logic.dart';
@@ -21,6 +22,14 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData.dark(),
       home: const HomePage(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale("ro"),
+        Locale("en"),
+      ],
     );
   }
 }
@@ -124,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                                 label: Text(
                                   Localizations.localeOf(context)
                                               .languageCode ==
-                                          "ro-RO"
+                                          "ro"
                                       ? "Dimensiune"
                                       : "Dimension",
                                 ),
@@ -336,8 +345,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Tooltip(
                             message: Localizations.localeOf(context)
-                                    .languageCode
-                                    .contains("ro")
+                                        .languageCode ==
+                                    "ro"
                                 ? "Această aplicație simulează un cub magic,\nun joc de dexteritate care se bazează\npe rotirea la 90 de grade a liniilor unui cub\ncu fețe segmentate NxN."
                                 : "This app simulates a magic cube,\n a dexterity game that's based\n on 90 degree turns of the cube's lines.",
                             textAlign: TextAlign.center,
