@@ -156,6 +156,8 @@ class _HomePageState extends State<HomePage> {
                               }
                               sizeGetter.text = val.toString();
                               cube = RubiksCube(val);
+                              movePlayer?.cancel();
+                              movePlayer = null;
                               setState(() {});
                             },
                             color: Theme.of(context).colorScheme.secondary,
@@ -181,6 +183,8 @@ class _HomePageState extends State<HomePage> {
                                 Random().nextInt(cube.size),
                                 Random().nextBool());
                           }
+                          movePlayer?.cancel();
+                          movePlayer = null;
                           setState(() {});
                         },
                         color: Theme.of(context).colorScheme.secondary,
